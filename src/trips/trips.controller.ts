@@ -1,9 +1,12 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import { TripService } from './trips.service';
+import { CreateTripDto } from './dto/create-trips.dto';
 
-@Controller('trips')
-export class TripsController {
+@Controller()
+export class TripController {
+  constructor(private readonly tripService: TripService) {}
   @Post('trips')
-  create() {
-    //todo
+  create(@Body() createTripsDto: CreateTripDto) {
+    return this.tripService.create(createTripsDto);
   }
 }
