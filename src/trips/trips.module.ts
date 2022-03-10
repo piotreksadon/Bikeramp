@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Trip } from './entities/trips.entity';
 import { Client } from '@googlemaps/google-maps-services-js';
 import { ConfigService } from '@nestjs/config';
+import { StatsModule } from '../stats/stats.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Trip])],
+  imports: [TypeOrmModule.forFeature([Trip]), StatsModule],
   controllers: [TripController],
   providers: [
     TripService,

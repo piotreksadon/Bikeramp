@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, Timestamp } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Length } from 'class-validator';
 
 @Entity()
@@ -19,7 +19,7 @@ export class Trip {
 
   @Column({ nullable: false, type: 'timestamp' })
   @Length(1)
-  date: Timestamp;
+  date: string;
 
   @Column({ nullable: false })
   distance: number;

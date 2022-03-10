@@ -4,40 +4,49 @@ import { Trip } from './entities/trips.entity';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trips.dto';
 import { Client, TravelMode } from '@googlemaps/google-maps-services-js';
+import { StatsService } from '../stats/stats.service';
 
 @Injectable()
 export class TripService {
   constructor(
-    @InjectRepository(Trip)
-    private readonly tripRepository: Repository<Trip>,
-    private readonly googleClient: Client,
+      @InjectRepository(Trip)
+      private readonly tripRepository: Repository<Trip>,
+      private statsService: StatsService,
+      private readonly googleClient: Client,
   ) {}
 
   async create(createTripDto: CreateTripDto) {
     const startAddress = this.getAddressWithoutPipe(createTripDto.startAddress);
     const destinationAddress = this.getAddressWithoutPipe(
-      createTripDto.destinationAddress,
+        createTripDto.destinationAddress,
     );
+    const date = new Date(createTripDto.date)
     const {
       data: { rows },
     } = await this.googleClient
-      .distancematrix({
-        params: {
-          origins: [startAddress],
-          destinations: [destinationAddress],
-          mode: TravelMode.bicycling,
-        } as any,
-        /** This interface requires an Api Key for sending request. It is provided in trip.module.ts.  */
-      })
-      .catch((error) => {
-        Logger.log(error);
-        throw new BadRequestException('Something went wrong.');
-      });
+        .distancematrix({
+          params: {
+            origins: [startAddress],
+            destinations: [destinationAddress],
+            mode: TravelMode.bicycling,
+          } as any,
+          /** This interface requires an Api Key for sending request. It is provided in trip.module.ts.  */
+        })
+        .catch((error) => {
+          Logger.log(error);
+          throw new BadRequestException('Something went wrong.');
+        });
 
     if (rows.length !== 1 || rows[0].elements.length !== 1) {
       throw new BadRequestException('Address not found.');
     }
     const distance = rows[0].elements[0].distance.value;
+
+    await this.statsService.generateWeeklyStats(
+        distance,
+        createTripDto.price,
+        date,
+    );
 
     return this.tripRepository.save({
       startAddress: createTripDto.startAddress,

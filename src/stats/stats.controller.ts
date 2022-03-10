@@ -1,16 +1,18 @@
 import { Controller, Get } from '@nestjs/common';
+import { StatsService } from './stats.service';
 
 @Controller('stats')
 export class StatsController {
-  @Get('weekly')
+  constructor(private readonly statsService: StatsService) {}
+  @Get('/weekly')
   async findOne() {
-    console.log('weekly');
-    return 'weekly';
+
+    return this.statsService.findOne();
   }
 
-  @Get('monthly')
-  async findAll() {
-    console.log('monthly');
-    return 'monthly';
-  }
+  // @Get('monthly')
+  // async findAll() {
+  //   console.log('monthly');
+  //   return 'monthly';
+  // }
 }
